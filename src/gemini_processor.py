@@ -12,7 +12,7 @@ class GeminiNLQProcessor:
     
     def __init__(self):
         genai.configure(api_key=Config.GEMINI_API_KEY)
-        self.model = genai.GenerativeModel('gemini-pro')
+        self.model = genai.GenerativeModel('gemini-2.0-flash')
         
         # Schéma de base de données pour le contexte
         self.db_schema = """
@@ -118,7 +118,7 @@ class GeminiNLQProcessor:
         # Ne doit pas contenir de mots-clés dangereux
         dangerous_keywords = [
             'drop', 'delete', 'insert', 'update', 'alter', 'create',
-            'truncate', 'exec', 'execute', 'union', '--', ';'
+            'truncate', 'exec', 'execute', 'union', '--'
         ]
         
         for keyword in dangerous_keywords:

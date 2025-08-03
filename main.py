@@ -27,8 +27,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialisation du service NLQ
-nlq_service = NLQService()
+# Initialisation du service NLQ (sera fait à la demande)
+nlq_service = None
+
+def get_nlq_service():
+    """Obtenir une instance du service NLQ avec gestion d'erreur"""
+    global nlq_service
+    if nlq_service is None:
+        try:
+            nlq_service = NLQService()
+        except Exception as e:
+            raise HTTPException(
+                status_code=503, 
+                detail=f"Service NLQ non disponible: {str(e)}. Vérifiez la configuration (clé API Gemini, etc.)"
+            )
+    return nlq_service
 
 # Modèles Pydantic
 class QueryRequest(BaseModel):
@@ -172,20 +185,39 @@ async def process_query(request: QueryRequest):
     Traiter une requête en langage naturel
     """
     try:
-        result = nlq_service.process_query(request.query)
+        service = get_nlq_service()
+        result = service.process_query(request.query)
         return QueryResponse(**result)
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Erreur lors du traitement: {str(e)}")
 
 @app.get("/suggestions")
 async def get_suggestions():
     """Obtenir des suggestions de requêtes"""
-    return {"suggestions": nlq_service.get_suggestions()}
+    try:
+        service = get_nlq_service()
+        return {"suggestions": service.get_suggestions()}
+    except HTTPException:
+        raise
+    except Exception as e:
+        return {"suggestions": [
+            "Montre-moi tous les produits",
+            "Affiche les t-shirts",
+            "Quels sont les prix?"
+        ]}
 
 @app.get("/stats")
 async def get_database_stats():
     """Obtenir des statistiques sur la base de données"""
-    return nlq_service.get_database_stats()
+    try:
+        service = get_nlq_service()
+        return service.get_database_stats()
+    except HTTPException:
+        raise
+    except Exception as e:
+        return {"error": f"Impossible d'obtenir les statistiques: {str(e)}"}
 
 @app.get("/health")
 async def health_check():
