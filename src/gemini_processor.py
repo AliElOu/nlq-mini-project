@@ -66,6 +66,15 @@ class GeminiNLQProcessor:
         }}
         
         Ne génère aucun autre texte en dehors du JSON.
+        Si la requête n'a pas une relation avec le contexte de la base de données et de e-commerce de vêtements, retourne ce json:
+        {{
+            "sql_query": "",
+            "explanation": "Requête non pertinente",
+            "filters_applied": [],
+            "confidence": 0.0,
+            "error": "requete hors contexte"
+
+        }}
         """
         
         try:
