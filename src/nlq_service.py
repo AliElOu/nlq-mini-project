@@ -104,12 +104,12 @@ class NLQService:
             "Quels sont les produits en promotion?",
             "Trouve des robes d'été de moins de 50 euros",
             "Affiche les produits Nike disponibles",
-            "Quelles sont les ventes de cette semaine?",
-            "Montre-moi les produits les plus vendus",
             "Trouve des chaussures pour femme en cuir",
             "Quels sont les nouveaux produits?",
-            "Affiche les commandes en cours",
-            "Trouve des vêtements d'hiver pour enfant"
+            "Trouve des vêtements d'hiver pour enfant",
+            "Montre-moi les produits les moins chers",
+            "Quelles sont les meilleures ventes?",
+            "Trouve des accessoires pour homme"
         ]
     
     def get_database_stats(self) -> Dict[str, Any]:

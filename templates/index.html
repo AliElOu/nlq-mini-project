@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NLQ E-commerce - Recherche intelligente">
+    <title>NLQ E-commerce</title>
+
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header simple -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="brand">
+                    <h1>
+                        <span class="brand-icon">🛒</span>
+                        <span class="brand-text">NLQ E-commerce</span>
+                    </h1>
+                    <p class="brand-subtitle">Recherche intelligente avec IA</p>
+                </div>
+
+                <nav class="header-nav">
+                    <button class="nav-btn" onclick="showHelp()" title="Aide">
+                        <span>❓</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Section principale -->
+        <main class="main-content">
+            <!-- Zone de recherche -->
+            <section class="search-section">
+                <h2 class="search-title">Que recherchez-vous ?</h2>
+                <p class="search-subtitle">Posez votre question en langage naturel</p>
+
+                <form class="search-form" onsubmit="event.preventDefault(); executeQuery();">
+                    <div class="search-input-wrapper">
+                        <input type="text" id="queryInput" class="search-input"
+                            placeholder="Ex: Montre-moi des robes d'été en promo" autocomplete="off" maxlength="500">
+                        <div class="search-input-counter">
+                            <span id="charCounter">0</span>/500
+                        </div>
+                    </div>
+
+                    <button type="submit" id="searchButton" class="search-button" disabled>
+                        <span class="button-icon">🔍</span>
+                        <span class="button-text">Rechercher</span>
+                    </button>
+                </form>
+
+                <div class="keyboard-hint">
+                    <small>💡 <kbd>Entrée</kbd> pour rechercher</small>
+                </div>
+            </section>
+
+            <!-- Suggestions simplifiées -->
+            <section class="suggestions-section">
+                <h3 class="suggestions-title">Exemples</h3>
+                <div class="suggestions-grid">
+                    <div class="suggestion" data-query="Montre-moi les t-shirts pour homme">
+                        <div class="suggestion-icon">👕</div>
+                        <div class="suggestion-content">
+                            <strong>T-shirts homme</strong>
+                            <span>Découvrir la collection</span>
+                        </div>
+                    </div>
+
+                    <div class="suggestion" data-query="Quels sont les produits en promotion ?">
+                        <div class="suggestion-icon">🏷️</div>
+                        <div class="suggestion-content">
+                            <strong>Promotions</strong>
+                            <span>Bonnes affaires du moment</span>
+                        </div>
+                    </div>
+
+                    <div class="suggestion" data-query="Trouve des chaussures pour femme">
+                        <div class="suggestion-icon">👠</div>
+                        <div class="suggestion-content">
+                            <strong>Chaussures femme</strong>
+                            <span>Toute la collection</span>
+                        </div>
+                    </div>
+
+                    <div class="suggestion" data-query="Montre-moi les nouveaux produits">
+                        <div class="suggestion-icon">✨</div>
+                        <div class="suggestion-content">
+                            <strong>Nouveautés</strong>
+                            <span>Dernières arrivées</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Zone des résultats -->
+            <section id="results" class="results-section" style="display: none;">
+                <div id="resultsContent" class="results-content">
+                    <!-- Les résultats seront affichés ici -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer simple -->
+        <footer class="app-footer">
+            <div class="footer-bottom">
+                <p>&copy; 2024 NLQ E-commerce - Powered by AI</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modale d'aide simplifiée -->
+    <div id="helpModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Guide d'utilisation</h3>
+                <button class="modal-close" onclick="closeModal('helpModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h4>Comment poser des questions ?</h4>
+                    <p>Utilisez un langage naturel :</p>
+                    <ul>
+                        <li>"Montre-moi des t-shirts pour homme"</li>
+                        <li>"Quels sont les produits en promotion ?"</li>
+                        <li>"Trouve des chaussures pour femme"</li>
+                        <li>"Montre-moi les nouveaux produits"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/app.js"></script>
+
+    <script>
+        // Fonctions simplifiées
+        function showHelp() {
+            document.getElementById('helpModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function () {
+            const queryInput = document.getElementById('queryInput');
+            const charCounter = document.getElementById('charCounter');
+
+            if (queryInput && charCounter) {
+                queryInput.addEventListener('input', function () {
+                    charCounter.textContent = this.value.length;
+                });
+            }
+        });
+
+        // Fermeture des modales avec Échap
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (modal.style.display === 'flex') {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // Fermeture des modales en cliquant à l'extérieur
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

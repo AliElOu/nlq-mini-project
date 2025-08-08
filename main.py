@@ -1,9 +1,11 @@
 """
 API FastAPI pour le système NLQ E-commerce
 """
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 import uvicorn
@@ -17,6 +19,10 @@ app = FastAPI(
     description="API pour les requêtes en langage naturel sur une base de données e-commerce",
     version="1.0.0"
 )
+
+# Configuration des fichiers statiques et templates
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 # Configuration CORS
 app.add_middleware(
@@ -60,124 +66,9 @@ class QueryResponse(BaseModel):
     error: Optional[str] = None
 
 @app.get("/", response_class=HTMLResponse)
-async def root():
-    """Page d'accueil avec interface simple"""
-    html_content = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>NLQ E-commerce</title>
-        <meta charset="utf-8">
-        <style>
-            body { font-family: Arial, sans-serif; margin: 40px; background-color: #f5f5f5; }
-            .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-            h1 { color: #333; text-align: center; }
-            .query-form { margin: 20px 0; }
-            input[type="text"] { width: 70%; padding: 10px; font-size: 16px; border: 1px solid #ddd; border-radius: 5px; }
-            button { padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-            button:hover { background: #0056b3; }
-            .suggestions { margin: 20px 0; }
-            .suggestion { background: #e9ecef; padding: 8px 12px; margin: 5px; border-radius: 15px; display: inline-block; cursor: pointer; }
-            .suggestion:hover { background: #dee2e6; }
-            .results { margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 5px; }
-            .error { color: #dc3545; }
-            .success { color: #28a745; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>🛍️ NLQ E-commerce</h1>
-            <p>Posez vos questions en langage naturel sur notre catalogue de vêtements !</p>
-            
-            <div class="query-form">
-                <input type="text" id="queryInput" placeholder="Ex: Montre-moi tous les t-shirts pour homme en coton">
-                <button onclick="executeQuery()">Rechercher</button>
-            </div>
-            
-            <div class="suggestions">
-                <strong>Suggestions :</strong><br>
-                <span class="suggestion" onclick="setQuery('Montre-moi tous les t-shirts pour homme en coton')">T-shirts homme en coton</span>
-                <span class="suggestion" onclick="setQuery('Quels sont les produits en promotion?')">Produits en promotion</span>
-                <span class="suggestion" onclick="setQuery('Trouve des robes d\\'été de moins de 50 euros')">Robes d'été < 50€</span>
-                <span class="suggestion" onclick="setQuery('Affiche les produits Nike disponibles')">Produits Nike</span>
-            </div>
-            
-            <div id="results" class="results" style="display: none;">
-                <div id="resultsContent"></div>
-            </div>
-        </div>
-        
-        <script>
-            function setQuery(query) {
-                document.getElementById('queryInput').value = query;
-            }
-            
-            async function executeQuery() {
-                const query = document.getElementById('queryInput').value;
-                if (!query.trim()) {
-                    alert('Veuillez saisir une requête');
-                    return;
-                }
-                
-                const resultsDiv = document.getElementById('results');
-                const resultsContent = document.getElementById('resultsContent');
-                
-                resultsContent.innerHTML = '<p>Traitement en cours...</p>';
-                resultsDiv.style.display = 'block';
-                
-                try {
-                    const response = await fetch('/query', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ query: query })
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        resultsContent.innerHTML = `
-                            <div class="success">
-                                <h3>Résultats (${result.count} trouvé(s))</h3>
-                                <p><strong>Réponse :</strong> ${result.natural_response}</p>
-                                <p><strong>Confiance :</strong> ${(result.confidence * 100).toFixed(1)}%</p>
-                                <details>
-                                    <summary>Détails techniques</summary>
-                                    <p><strong>Requête SQL :</strong> <code>${result.sql_query}</code></p>
-                                    <p><strong>Explication :</strong> ${result.explanation}</p>
-                                </details>
-                            </div>
-                        `;
-                    } else {
-                        resultsContent.innerHTML = `
-                            <div class="error">
-                                <h3>Erreur</h3>
-                                <p>${result.natural_response}</p>
-                            </div>
-                        `;
-                    }
-                } catch (error) {
-                    resultsContent.innerHTML = `
-                        <div class="error">
-                            <h3>Erreur de connexion</h3>
-                            <p>Impossible de traiter la requête : ${error.message}</p>
-                        </div>
-                    `;
-                }
-            }
-            
-            // Permettre l'exécution avec la touche Entrée
-            document.getElementById('queryInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    executeQuery();
-                }
-            });
-        </script>
-    </body>
-    </html>
-    """
-    return html_content
+async def root(request: Request):
+    """Page d'accueil avec interface moderne séparée"""
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/query", response_model=QueryResponse)
 async def process_query(request: QueryRequest):

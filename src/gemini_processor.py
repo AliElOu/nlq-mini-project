@@ -25,7 +25,7 @@ class GeminiNLQProcessor:
         4. orders: id, customer_email, total_amount, status, order_date, shipping_address
         5. order_items: id, order_id, product_id, quantity, unit_price, total_price
         
-        Genres possibles: homme, femme, enfant, unisexe
+        Genres possibles: homme, femme, enfant
         Saisons possibles: printemps, été, automne, hiver, toute_saison
         Statuts de commande: en_attente, confirmé, expédié, livré, annulé
         """
